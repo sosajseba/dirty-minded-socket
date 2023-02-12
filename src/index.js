@@ -21,13 +21,11 @@ io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`)
 
     socket.on('create-room', (data) => {
-        console.log(data);
         room = data;
         socket.join(data.roomId);
     })
 
     socket.on('join-room', (data) => {
-        console.log(room.players);
         if (room.players) {
             if (room.players.length < 3) //TODO: move max playersto an env variable
             {
@@ -41,7 +39,6 @@ io.on('connection', (socket) => {
     })
 
     socket.on('send', (data) => {
-        console.log(data);
         socket.to(data.room).emit('receive', data.message)
     })
 })
