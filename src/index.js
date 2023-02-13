@@ -25,9 +25,15 @@ io.on('connection', (socket) => {
         socket.join(data.roomId);
     })
 
+    socket.on('update-room', (data) => {
+        room = data;
+        console.log(room)
+        socket.nsp.to(data.roomId).emit('room-updated', room);
+    })
+
     socket.on('join-room', (data) => {
         if (room.players) {
-            if (room.players.length < 3) //TODO: move max playersto an env variable
+            if (room.players.length < 3) //TODO: move max players to an env variable
             {
                 socket.join(data.roomId);
                 room.players.push(data.player);
