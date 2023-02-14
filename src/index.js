@@ -1,3 +1,5 @@
+const dotenv = require('dotenv')
+dotenv.config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -10,7 +12,7 @@ app.use(cors());
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: process.env.CORS_ORIGINS,
         methods: ['GET', 'POST']
     }
 })
@@ -33,7 +35,7 @@ io.on('connection', (socket) => {
 
     socket.on('join-room', (data) => {
         if (room.players) {
-            if (room.players.length < 3) //TODO: move max players to an env variable
+            if (room.players.length < process.env.MAX_PLAYERS_PER_ROOM)
             {
                 socket.join(data.roomId);
                 room.players.push(data.player);
@@ -49,6 +51,6 @@ io.on('connection', (socket) => {
     })
 })
 
-server.listen(3001, () => {
-    console.log('Server is running on port 3001')
+server.listen(process.env.PORT, () => {
+    console.log('Server is running on port ' + process.env.PORT)
 })
