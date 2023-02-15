@@ -10,6 +10,10 @@ const server = http.createServer(app);
 
 app.use(cors());
 
+app.get('/health', (req, res) => {
+    res.send('Server is up!');
+});
+
 const io = new Server(server, {
     cors: {
         origin: process.env.CORS_ORIGINS,
