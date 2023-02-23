@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
 
     socket.on('update-room', (data) => {
         room = data;
-        console.log(room)
         socket.nsp.to(data.roomId).emit('room-updated', room);
     })
 
@@ -53,9 +52,14 @@ io.on('connection', (socket) => {
     })
 
     socket.on('send', (data) => {
-        console.log(data)
         socket.to(data.room).emit('receive', data.message)
     })
+
+    socket.on('disconnecting', () => {
+        room.players = room.players.filter(x => x.id !== socket.id);
+        room.players[Math.floor(Math.random() * room.players.length)].admin = true;
+        socket.to(room.roomId).emit('user-disconnected', room.players)
+    });
 })
 
 instrument(io, {
