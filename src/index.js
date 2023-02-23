@@ -57,8 +57,10 @@ io.on('connection', (socket) => {
 
     socket.on('disconnecting', () => {
         room.players = room.players.filter(x => x.id !== socket.id);
-        room.players[Math.floor(Math.random() * room.players.length)].admin = true;
-        socket.to(room.roomId).emit('user-disconnected', room.players)
+        if (room.players.length > 0) {
+            room.players[Math.floor(Math.random() * room.players.length)].admin = true;
+            socket.to(room.roomId).emit('user-disconnected', room.players)
+        }
     });
 })
 
