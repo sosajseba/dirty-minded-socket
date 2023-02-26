@@ -27,8 +27,6 @@ const io = new Server(server, {
 var room = {};
 
 io.on('connection', (socket) => {
-    console.log(`User Connected: ${socket.id}`)
-
     socket.on('create-room', (data) => {
         room = data;
         socket.join(data.roomId);
@@ -56,8 +54,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnecting', () => {
-        room.players = room.players.filter(x => x.id !== socket.id);
-        if (room.players.length > 0) {
+        room.players = room.players?.filter(x => x.id !== socket.id);
+        if (room.players?.length > 0) {
             room.players[Math.floor(Math.random() * room.players.length)].admin = true;
             socket.to(room.roomId).emit('user-disconnected', room.players)
         }
