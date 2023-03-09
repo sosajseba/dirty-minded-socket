@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  websocket:
+    container_name: dirty-minded-socket
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    ports:
+      - "3001:80"
