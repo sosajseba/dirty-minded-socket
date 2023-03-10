@@ -21,9 +21,11 @@ app.get('/health', (req, res) => {
     res.send('Server is up!');
 });
 
+const allowAllOrigins = process.env.ALLOW_ALL_ORIGINS === 'true';
+
 const io = new Server(server, {
     cors: {
-        origin: process.env.CORS_ORIGINS.split(','),
+        origin: allowAllOrigins ? '*' : process.env.CORS_ORIGINS.split(','),
         methods: ['GET', 'POST'],
         credentials: true
     }
