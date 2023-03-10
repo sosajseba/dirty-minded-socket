@@ -23,12 +23,14 @@ app.get('/health', (req, res) => {
 
 const allowAllOrigins = process.env.ALLOW_ALL_ORIGINS === 'true';
 
+const corsConfig = {
+    origin: process.env.CORS_ORIGINS.split(','),
+    methods: ['GET', 'POST'],
+    credentials: true
+}
+
 const io = new Server(server, {
-    cors: {
-        origin: allowAllOrigins ? '*' : process.env.CORS_ORIGINS.split(','),
-        methods: ['GET', 'POST'],
-        credentials: true
-    }
+    cors: allowAllOrigins ? { origin: '*' } : corsConfig
 })
 
 const cardsPerPlayer = process.env.CARDS_PER_PLAYER;
