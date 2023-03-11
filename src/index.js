@@ -130,8 +130,6 @@ io.on('connection', (socket) => {
         let room = await Room.findOne({ 'roomId': roomId })
         if (room) {
             const cardIndex = room.blackCards[room.round]
-            room.currentBlackCard = cardIndex;
-            await Room.findByIdAndUpdate(room._id, room);
             socket.nsp.to(roomId).emit('receive-current-black-card', cardIndex)
         }
     })
@@ -164,25 +162,25 @@ io.on('connection', (socket) => {
                     break;
                 }
             }
+            room.round += 1;
             await Room.findByIdAndUpdate(room._id, room);
             socket.nsp.to(room.roomId).emit('receive-next-turn', null)
         }
     })
 
     socket.on('disconnecting', async () => {
+        userCount--
         const roomId = Array.from(socket.rooms)[1]
         let room = await Room.findOne({ 'roomId': roomId })
         if (room) {
-            if (room.players.length === 1) {
-                await Room.findByIdAndDelete(room._id)
+            room.players = room.players?.filter(x => x.id !== socket.id);
+            if (room.players.length <= 0) {
+                await Room.findByIdAndDelete(room._id) //TODO: if there is no enough players, room should be deleted and game cannot continue
             } else {
-                room.players = room.players?.filter(x => x.id !== socket.id);
-                if (room.players?.length > 0) {
-                    var rand = Math.floor(Math.random() * room.players.length)
-                    room.players[rand].admin = true;
-                    await Room.findByIdAndUpdate(room._id, room)
-                    socket.to(room.roomId).emit('receive-user-disconnected', { admin: room.players[rand].id, disconnected: socket.id })
-                }
+                var rand = Math.floor(Math.random() * room.players.length)
+                room.players[rand].admin = true;
+                await Room.findByIdAndUpdate(room._id, room)
+                socket.to(roomId).emit('receive-user-disconnected', { admin: room.players[rand].id, disconnected: socket.id })
             }
         }
     });
