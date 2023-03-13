@@ -13,17 +13,12 @@ const Player = new Schema({
         type: String,
         required: true
     },
-    reads: {
-        type: Boolean,
-        required: true
-    },
     score: {
         type: Number,
         required: true
     },
     cards: {
-        type: [Number],
-        default: undefined
+        type: [Number]
     }
 });
 
@@ -52,8 +47,7 @@ const schema = new Schema({
         type: [Player]
     },
     readerId: {
-        type: String,
-        required: false
+        type: String
     },
     roomId: {
         type: String,
