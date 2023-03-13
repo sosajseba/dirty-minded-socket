@@ -178,9 +178,11 @@ io.on('connection', (socket) => {
             let room = await Room.findOne({ 'roomId': roomId })
             if (room) {
                 var rand = Math.floor(Math.random() * room.players.length);
-                room.readerId = room.players[rand].id
-                await Room.findByIdAndUpdate(room._id, room);
-                socket.nsp.to(room.roomId).emit('receive-next-turn', room.readerId)
+                Room.findById(room._id).then((room)=>{
+                    room.readerId = room.players[rand].id;
+                    room.save();
+                    socket.nsp.to(room.roomId).emit('receive-next-turn', room.players[rand].id)
+                })
             }
         } catch (error) {
             console.log(roomId, 'emit-first-turn', error)
