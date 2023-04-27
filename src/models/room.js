@@ -19,6 +19,10 @@ const Player = new Schema({
     },
     cards: {
         type: [Number]
+    },
+    brain: {
+        type: Number,
+        required: true
     }
 });
 
