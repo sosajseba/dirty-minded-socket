@@ -159,16 +159,12 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('emit-current-black-card', async () => {
+    socket.on('emit-picking-white-card', async (data) => {
         const roomId = Array.from(socket.rooms)[1]
         try {
-            let room = await Room.findOne({ 'roomId': roomId })
-            if (room) {
-                const cardIndex = room.blackCards[room.round]
-                socket.nsp.to(roomId).emit('receive-current-black-card', cardIndex)
-            }
+            socket.nsp.to(roomId).emit('receive-picking-white-card', data)
         } catch (error) {
-            console.log(roomId, 'emit-current-black-card', error)
+            console.log(roomId, 'receive-picking-white-card', error)
         }
     })
 
@@ -178,10 +174,11 @@ io.on('connection', (socket) => {
             let room = await Room.findOne({ 'roomId': roomId })
             if (room) {
                 var rand = Math.floor(Math.random() * room.players.length);
-                Room.findById(room._id).then((room)=>{
+                const cardIndex = room.blackCards[room.round]
+                Room.findById(room._id).then((room) => {
                     room.readerId = room.players[rand].id;
                     room.save();
-                    socket.nsp.to(room.roomId).emit('receive-next-turn', room.players[rand].id)
+                    socket.nsp.to(room.roomId).emit('receive-next-turn', room.players[rand].id, cardIndex)
                 })
             }
         } catch (error) {
@@ -205,8 +202,9 @@ io.on('connection', (socket) => {
                     }
                 }
                 room.round += 1;
+                const cardIndex = room.blackCards[room.round]
                 await Room.findByIdAndUpdate(room._id, room);
-                socket.nsp.to(room.roomId).emit('receive-next-turn', room.readerId)
+                socket.nsp.to(room.roomId).emit('receive-next-turn', room.readerId, cardIndex)
             }
         } catch (error) {
             console.log(roomId, 'emit-next-turn', error)
