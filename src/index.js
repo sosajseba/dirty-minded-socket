@@ -116,27 +116,27 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('emit-cards-replacement', async () => {
-        const roomId = Array.from(socket.rooms)[1]
-        try {
-            let room = await Room.findOne({ 'roomId': roomId })
-            if (room) {
-                room.players.forEach(player => {
-                    if (player.id !== room.readerId) {
-                        const firstCardList = room.whiteCards.slice(0, 1);
-                        let lastCards = room.whiteCards.slice(1, room.whiteCards.length);
-                        player.cards = player.cards.concat(firstCardList);
-                        lastCards = lastCards.concat(firstCardList);
-                        room.whiteCards = lastCards;
-                        socket.nsp.to(player.id).emit('receive-cards-replacement', firstCardList);
-                    }
-                });
-                await Room.findByIdAndUpdate(room._id, room);
-            }
-        } catch (error) {
-            console.log(roomId, 'emit-cards-replacement', error)
-        }
-    })
+    // socket.on('emit-cards-replacement', async () => {
+    //     const roomId = Array.from(socket.rooms)[1]
+    //     try {
+    //         let room = await Room.findOne({ 'roomId': roomId })
+    //         if (room) {
+    //             room.players.forEach(player => {
+    //                 if (player.id !== room.readerId) {
+    //                     const firstCardList = room.whiteCards.slice(0, 1);
+    //                     let lastCards = room.whiteCards.slice(1, room.whiteCards.length);
+    //                     player.cards = player.cards.concat(firstCardList);
+    //                     lastCards = lastCards.concat(firstCardList);
+    //                     room.whiteCards = lastCards;
+    //                     socket.nsp.to(player.id).emit('receive-cards-replacement', firstCardList);
+    //                 }
+    //             });
+    //             await Room.findByIdAndUpdate(room._id, room);
+    //         }
+    //     } catch (error) {
+    //         console.log(roomId, 'emit-cards-replacement', error)
+    //     }
+    // })
 
     socket.on('emit-player-picked-white-card', (data) => {
         const roomId = Array.from(socket.rooms)[1]
@@ -191,6 +191,16 @@ io.on('connection', (socket) => {
         try {
             let room = await Room.findOne({ 'roomId': roomId })
             if (room) {
+                room.players.forEach(player => {
+                    if (player.id !== room.readerId) {
+                        const firstCardList = room.whiteCards.slice(0, 1);
+                        let lastCards = room.whiteCards.slice(1, room.whiteCards.length);
+                        player.cards = player.cards.concat(firstCardList);
+                        lastCards = lastCards.concat(firstCardList);
+                        room.whiteCards = lastCards;
+                        socket.nsp.to(player.id).emit('receive-cards-replacement', firstCardList);
+                    }
+                });
                 for (let i = 0; i < room.players.length; i++) {
                     if (room.readerId === room.players[i].id) {
                         if (i + 1 === room.players.length) {
